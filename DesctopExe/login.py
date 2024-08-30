@@ -89,3 +89,4 @@ class RegistrationApp(ctk.CTk):
 if __name__ == "__main__":
     app = RegistrationApp()
     app.mainloop()
+
