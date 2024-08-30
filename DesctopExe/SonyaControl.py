@@ -77,13 +77,33 @@ class CustomApp(ctk.CTk):
 
         self.button_off = ctk.CTkButton(
             self,
+            text="RGB ON",
+            command=self.rgb,
+            font=("Arial", 14),
+            fg_color='#000000',  # Красный цвет для выключения
+            hover_color='#171717'
+        )
+        self.button_off.grid(pady=0, padx=0, row=0, column=6)
+
+        self.button_off = ctk.CTkButton(
+            self,
+            text="RGB OFF",
+            command=self.rgb_off,
+            font=("Arial", 14),
+            fg_color='#000000',  # Красный цвет для выключения
+            hover_color='#171717'
+        )
+        self.button_off.grid(pady=0, padx=0, row=0, column=7)
+
+        self.button_off = ctk.CTkButton(
+            self,
             text="Exit",
             command=self.on_closing,
             font=("Arial", 14),
             fg_color='#000000',  # Красный цвет для выключения
             hover_color='#171717'
         )
-        self.button_off.grid(pady=490, padx=430, row=4, column=10)
+        self.button_off.grid(pady=490, padx=0, row=4, column=7)
 
     def turn_led_on(self):
         self.send_command('1')
@@ -97,11 +117,19 @@ class CustomApp(ctk.CTk):
     def sadness(self):
         self.send_command('3')
 
+
     def random(self):
         random_number = random.randint(0, 3)
         # Отправка сгенерированного числа в функцию send_command
         for i in range(3):
             self.send_command(random_number)
+    def rgb(self):
+        self.send_command('4')
+
+    def rgb_off(self):
+        self.label = ctk.CTkLabel(self, text="Подождите 15 секунд")
+        self.label.grid(pady=0, padx=0, row=1, column=7)
+        self.send_command('5')
 
     def send_command(self, command):
         try:
@@ -121,3 +149,4 @@ if __name__ == "__main__":
     app = CustomApp()
     app.protocol("WM_DELETE_WINDOW", app.on_closing)
     app.mainloop()
+
