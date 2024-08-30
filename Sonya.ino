@@ -15,6 +15,7 @@
 #define G1  9
 
 void setup() {
+   Serial.begin(9600);
    pinMode(A, OUTPUT);
    pinMode(B, OUTPUT);
    pinMode(C, OUTPUT);
@@ -41,14 +42,14 @@ void loop() {
     Serial.println(command);  // Отладка: выводим команду в монитор порта
 
     if (command == '1') {
-      digitalWrite(A, LOW);
-      digitalWrite(B, LOW);
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
       digitalWrite(C, LOW);
       digitalWrite(D, LOW);
       digitalWrite(E, LOW);
-      digitalWrite(F, LOW);
+      digitalWrite(F, HIGH);
       digitalWrite(G, HIGH);
-    } else if (command == '0') {
+
       digitalWrite(A1, LOW);
       digitalWrite(B1, LOW);
       digitalWrite(C1, LOW);
@@ -56,8 +57,62 @@ void loop() {
       digitalWrite(E1, LOW);
       digitalWrite(F1, LOW);
       digitalWrite(G1, HIGH);
+    } else if (command == '0') {
+      digitalWrite(A, LOW);
+      digitalWrite(B, LOW);
+      digitalWrite(C, LOW);
+      digitalWrite(D, LOW);
+      digitalWrite(E, LOW);
+      digitalWrite(F, LOW);
+      digitalWrite(G, HIGH);
+
+      digitalWrite(A1, HIGH);
+      digitalWrite(B1, HIGH);
+      digitalWrite(C1, LOW);
+      digitalWrite(D1, LOW);
+      digitalWrite(E1, LOW);
+      digitalWrite(F1, HIGH);
+      digitalWrite(G1, HIGH);
+    } else if (command == '2'){  
+        startCycle();  // Запускаем функцию необходимое количество раз
+    } else if (command == '3') {
+      digitalWrite(A, LOW);
+      digitalWrite(B, LOW);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, LOW);
+      digitalWrite(F, LOW);
+      digitalWrite(G, LOW);
+
+      digitalWrite(A1, LOW);
+      digitalWrite(B1, LOW);
+      digitalWrite(C1, LOW);
+      digitalWrite(D1, HIGH);
+      digitalWrite(E1, HIGH);
+      digitalWrite(F1, LOW);
+      digitalWrite(G1, LOW);
+      delay(1000);
+
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, LOW);
+      digitalWrite(D, LOW);
+      digitalWrite(E, LOW);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+
+      digitalWrite(A1, HIGH);
+      digitalWrite(B1, HIGH);
+      digitalWrite(C1, LOW);
+      digitalWrite(D1, LOW);
+      digitalWrite(E1, LOW);
+      digitalWrite(F1, HIGH);
+      digitalWrite(G1, HIGH);
     }
   }
+  
+}
+void startCycle(){
   //Глазки на 2 дисплеях
    digitalWrite(A, HIGH);
    digitalWrite(B, HIGH);
@@ -109,4 +164,5 @@ void loop() {
    digitalWrite(E1, LOW);
    digitalWrite(F1, HIGH);
    digitalWrite(G1, LOW);
+   
 }
