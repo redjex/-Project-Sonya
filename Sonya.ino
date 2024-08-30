@@ -1,3 +1,9 @@
+#include <Adafruit_NeoPixel.h>
+
+#define NUM_LEDS 30
+#define LED_PIN A4
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
 #define A  8
 #define B  7
 #define C  6
@@ -15,6 +21,9 @@
 #define G1  9
 
 void setup() {
+   strip.begin();
+   strip.show(); // Убедитесь, что все светодиоды выключены
+
    Serial.begin(9600);
    pinMode(A, OUTPUT);
    pinMode(B, OUTPUT);
@@ -31,7 +40,7 @@ void setup() {
    pinMode(E1, OUTPUT);
    pinMode(F1, OUTPUT);
    pinMode(G1, OUTPUT);
-  
+   startpost();
 
    
 }
@@ -57,6 +66,8 @@ void loop() {
       digitalWrite(E1, LOW);
       digitalWrite(F1, LOW);
       digitalWrite(G1, HIGH);
+      delay(1000);
+      startpost();
     } else if (command == '0') {
       digitalWrite(A, LOW);
       digitalWrite(B, LOW);
@@ -73,6 +84,8 @@ void loop() {
       digitalWrite(E1, LOW);
       digitalWrite(F1, HIGH);
       digitalWrite(G1, HIGH);
+      delay(1000);
+      startpost();
     } else if (command == '2'){  
         startCycle();  // Запускаем функцию необходимое количество раз
     } else if (command == '3') {
@@ -91,26 +104,60 @@ void loop() {
       digitalWrite(E1, HIGH);
       digitalWrite(F1, LOW);
       digitalWrite(G1, LOW);
-      delay(1000);
-
-      digitalWrite(A, HIGH);
-      digitalWrite(B, HIGH);
-      digitalWrite(C, LOW);
-      digitalWrite(D, LOW);
-      digitalWrite(E, LOW);
-      digitalWrite(F, HIGH);
-      digitalWrite(G, HIGH);
-
-      digitalWrite(A1, HIGH);
-      digitalWrite(B1, HIGH);
-      digitalWrite(C1, LOW);
-      digitalWrite(D1, LOW);
-      digitalWrite(E1, LOW);
-      digitalWrite(F1, HIGH);
-      digitalWrite(G1, HIGH);
+      delay(2000);
+      startpost();
+    } else if (command == '4') {
+      rainbowCycle(10);
+      delay(250);
+    } else if (command == '5') {
+      strip.clear();
+      strip.show();
+      delay(250);
+      startpost();
     }
   }
   
+}
+void rainbowCycle(uint8_t wait) {
+  uint16_t i, j;
+
+  for (j = 0; j < 256 * 5; j++) { // 5 полных циклов радуги (каждый по 256 шагов)
+    for (i = 0; i < strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+    }
+    strip.show();
+    delay(wait);
+    startpost();
+  }
+}
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if (WheelPos < 85) {
+    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  } else if (WheelPos < 170) {
+    WheelPos -= 85;
+    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  } else {
+    WheelPos -= 170;
+    return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  }
+}
+void startpost(){
+   digitalWrite(A, HIGH);
+   digitalWrite(B, HIGH);
+   digitalWrite(C, LOW);
+   digitalWrite(D, LOW);
+   digitalWrite(E, LOW);
+   digitalWrite(F, HIGH);
+   digitalWrite(G, HIGH);
+
+   digitalWrite(A1, HIGH);
+   digitalWrite(B1, HIGH);
+   digitalWrite(C1, LOW);
+   digitalWrite(D1, LOW);
+   digitalWrite(E1, LOW);
+   digitalWrite(F1, HIGH);
+   digitalWrite(G1, HIGH);
 }
 void startCycle(){
   //Глазки на 2 дисплеях
@@ -164,5 +211,5 @@ void startCycle(){
    digitalWrite(E1, LOW);
    digitalWrite(F1, HIGH);
    digitalWrite(G1, LOW);
-   
+   startpost();
 }
