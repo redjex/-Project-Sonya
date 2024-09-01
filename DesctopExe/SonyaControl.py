@@ -9,12 +9,14 @@ from tkinter import PhotoImage
 class CustomApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        ctk.set_appearance_mode("dark")
+
+        self.current_theme = "dark"
+        ctk.set_appearance_mode(self.current_theme)
         self.title("LED Control App")
         self.geometry("1000x550")
         self.iconbitmap("C:\\Users\\micha\\OneDrive\\Рабочий стол\\Sonya\\home.ico")
         self.configure(bg='#f0f0f0')
-
+        self.resizable(False, False)
         # Подключение к Arduino
         try:
             self.arduino = serial.Serial(port='COM12', baudrate=9600, timeout=1)  # Укажите свой COM порт
@@ -23,58 +25,43 @@ class CustomApp(ctk.CTk):
             messagebox.showerror("Connection Error", f"Could not connect to Arduino: {e}")
             self.destroy()  # Закрываем приложение, если не удается подключиться
         # Создаем кнопку для включения светодиода
-
-        self.button_on = ctk.CTkButton(
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_columnconfigure(1, weight=0)
+        self.frame = ctk.CTkFrame(
             self,
-            text="Левый глаз",
-            command=self.turn_led_on,
-            font=("Arial", 14),
-            fg_color='#28a745',  # Зеленый цвет для включения
-            hover_color='#218838'
+            width=500,
+            height=1000,
+            fg_color="#A5A5A5",  # Цвет фона фрейма
+            corner_radius=5  # Скругление углов фрейма
         )
-        self.button_on.grid(pady=0, padx=0, row=0, column=3)
 
-        # Создаем кнопку для выключения светодиода
-        self.button_off = ctk.CTkButton(
-            self,
-            text="Правый глаз",
-            command=self.turn_led_off,
-            font=("Arial", 14),
-            fg_color='#dc3545',  # Красный цвет для выключения
-            hover_color='#c82333'
+        # Размещаем Frame в окне
+        self.frame.grid(padx=0, pady=0, row=0, column=0, sticky="n")
+
+        # Добавляем виджеты внутрь Frame
+        self.label = ctk.CTkLabel(master=self.frame, text="Это CTkLabel", text_color="white")
+        self.label.grid(pady=10, padx=20, row=0, column=0, sticky="n")
+        self.optionmenu = ctk.CTkOptionMenu(
+        self.frame,
+        values=["Глазки","Радость", "Грусть", "Левый глаз", "Правый глаз"],
+        command=self.optionmenu_callback,  # Функция, вызываемая при изменении выбора
+        font = ("Arial", 14),
+        fg_color = '#000000',  # Красный цвет для выключения
+        button_hover_color="#171717",  # Цвет кнопки при наведении
+        button_color = '#000000'
         )
-        self.button_off.grid(pady=0, padx=0, row=0, column=2)
-
-        self.button_off = ctk.CTkButton(
-            self,
-            text="Радость",
-            command=self.blink_led,
-            font=("Arial", 14),
-            fg_color='#000000',  # Красный цвет для выключения
-            hover_color='#171717'
-        )
-        self.button_off.grid(pady=0, padx=0, row=0, column=1)
-
-        self.button_off = ctk.CTkButton(
-            self,
-            text="Грусть",
-            command=self.sadness,
+        # Задаем начальное значение
+        self.optionmenu.set("Эмоции")
+        self.optionmenu.grid(pady=10, padx=10, row=1, column=0)
+        self.button_settings = ctk.CTkButton(
+            self.frame,
+            text="Settings",
+            command=self.settings,
             font=("Arial", 14),
             fg_color='#000000',  # Красный цвет для выключения
             hover_color='#171717'
         )
-        self.button_off.grid(pady=0, padx=0, row=0, column=4)
-
-        self.button_off = ctk.CTkButton(
-            self,
-            text="Рамдомные эмоции",
-            command=self.random,
-            font=("Arial", 14),
-            fg_color='#000000',  # Красный цвет для выключения
-            hover_color='#171717'
-        )
-        self.button_off.grid(pady=0, padx=0, row=0, column=5)
-
+        self.button_settings.grid(pady=10, padx=10, row=2, column=0)
         self.button_off = ctk.CTkButton(
             self,
             text="RGB ON",
@@ -83,7 +70,7 @@ class CustomApp(ctk.CTk):
             fg_color='#000000',  # Красный цвет для выключения
             hover_color='#171717'
         )
-        self.button_off.grid(pady=0, padx=0, row=0, column=6)
+        self.button_off.grid(pady=0, padx=0, row=1, column=6)
 
         self.button_off = ctk.CTkButton(
             self,
@@ -93,7 +80,7 @@ class CustomApp(ctk.CTk):
             fg_color='#000000',  # Красный цвет для выключения
             hover_color='#171717'
         )
-        self.button_off.grid(pady=0, padx=0, row=0, column=7)
+        self.button_off.grid(pady=0, padx=0, row=1, column=7)
 
         self.button_off = ctk.CTkButton(
             self,
@@ -105,18 +92,31 @@ class CustomApp(ctk.CTk):
         )
         self.button_off.grid(pady=490, padx=0, row=4, column=7)
 
-    def turn_led_on(self):
-        self.send_command('1')
-
-    def turn_led_off(self):
-        self.send_command('0')
-
-    def blink_led(self):
-        self.send_command('2')
-
-    def sadness(self):
-        self.send_command('3')
-
+        self.theme_switch = ctk.CTkSwitch(self, text="Light Mode", command=self.toggle_theme)
+        self.theme_switch.grid(pady=460, padx=0, row=4, column=6)
+    def settings(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+    def optionmenu_callback(self, choice):
+        if choice == "Радость":
+            self.send_command('2')
+        elif choice == "Грусть":
+            self.send_command('3')
+        elif choice == "Левый глаз":
+            self.send_command('0')
+        elif choice == "Правый глаз":
+            self.send_command('1')
+        elif choice == "Глазки":
+            self.send_command('6')
+    def toggle_theme(self):
+        if self.current_theme == "dark":
+            self.current_theme = "light"
+            ctk.set_appearance_mode("light")
+            self.theme_switch.configure(text="Dark Mode")
+        else:
+            self.current_theme = "dark"
+            ctk.set_appearance_mode("dark")
+            self.theme_switch.configure(text="Light Mode")
 
     def random(self):
         random_number = random.randint(0, 3)
@@ -130,6 +130,7 @@ class CustomApp(ctk.CTk):
         self.label = ctk.CTkLabel(self, text="Подождите 15 секунд")
         self.label.grid(pady=0, padx=0, row=1, column=7)
         self.send_command('5')
+        self.button_off.grid(pady=462, padx=0, row=4, column=7)
 
     def send_command(self, command):
         try:
@@ -149,4 +150,3 @@ if __name__ == "__main__":
     app = CustomApp()
     app.protocol("WM_DELETE_WINDOW", app.on_closing)
     app.mainloop()
-
