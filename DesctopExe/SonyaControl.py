@@ -4,7 +4,8 @@ import time
 from tkinter import messagebox
 import random
 from tkinter import PhotoImage
-
+import json  # Импортируем модуль json
+import os
 
 class CustomApp(ctk.CTk):
     def __init__(self):
@@ -107,6 +108,10 @@ class CustomApp(ctk.CTk):
         #self.theme_switch = ctk.CTkSwitch(self, text="Light Mode", command=self.toggle_theme)
         #self.theme_switch.grid(pady=460, padx=0, row=4, column=6)
 
+
+    # Настройки меню
+
+
     def settings(self):
         for widget in self.winfo_children():
             widget.destroy()
@@ -140,30 +145,70 @@ class CustomApp(ctk.CTk):
             width=self.default_width,
         )
         self.button_off.grid(row=3, column=0, columnspan=2, pady=20)
-
         options = [90, 100, 120, 130]
         self.selected_option = ctk.StringVar(value="100%")  # По умолчанию 100%
+
+        # Загрузка сохраненного значения
+        self.load_settings()
         self.option_menu = ctk.CTkOptionMenu(self.frame, variable=self.selected_option,
                                              values=[f"{option}%" for option in options],
                                              command=self.on_option_change)
         self.option_menu.grid(row=2, column=0, columnspan=2, pady=20)  # Размещаем OptionMenu ниже всех виджетов
 
+        # Применение сохраненного масштаба при запуске
+        self.on_option_change(self.selected_option.get())
+
+        # Изменение размера текста
+
     def on_option_change(self, value):
         scale_percentage = int(value[:-1])
         self.resize_widgets(scale_percentage)
+        self.save_settings(scale_percentage)  # Сохранение настроек
 
     def resize_widgets(self, scale_percentage):
         new_width = int(self.default_width * scale_percentage / 100)
         new_height = int(self.default_height * scale_percentage / 100)
         for widget in self.frame.winfo_children():
             if isinstance(widget, (
-            ctk.CTkButton, ctk.CTkLabel, ctk.CTkSwitch, ctk.CTkCheckBox, ctk.CTkEntry, ctk.CTkOptionMenu)):  # Если виджет - это кнопка, метка или переключатель
+            ctk.CTkButton, ctk.CTkLabel, ctk.CTkSwitch, ctk.CTkCheckBox, ctk.CTkEntry, ctk.CTkOptionMenu)):
                 widget.configure(width=new_width, height=new_height)
                 if isinstance(widget, ctk.CTkLabel):  # Для метки обновим шрифт
                     widget.configure(font=ctk.CTkFont(size=int(14 * scale_percentage / 100)))
+
+        # Сохранение настроек в файл
+
+    def save_settings(self, scale_percentage):
+        settings = {'scale_percentage': scale_percentage}
+        with open('settings.json', 'w') as settings_file:
+            json.dump(settings, settings_file)
+
+        # Загрузка настроек из файла
+
+    def load_settings(self):
+        try:
+            # Проверяем, существует ли файл
+            if os.path.exists('settings.json'):
+                with open('settings.json', 'r') as settings_file:
+                    # Проверяем, пустой ли файл
+                    if os.path.getsize('settings.json') > 0:
+                        settings = json.load(settings_file)
+                        self.selected_option.set(f"{settings['scale_percentage']}%")
+                    else:
+                        self.selected_option.set("100%")  # Если файл пуст, используем значение по умолчанию
+            else:
+                self.selected_option.set("100%")  # Если файл не существует, используем значение по умолчанию
+        except (FileNotFoundError, KeyError, json.JSONDecodeError):
+            self.selected_option.set("100%")  # Если файл поврежден или пуст, используем значение по умолчанию
+
+
     def back(self):
         for widget in self.winfo_children():
             widget.destroy()
+
+
+            # Тут возвращение на главный экран
+
+
         self.grid_rowconfigure(1, weight=0)
         self.grid_columnconfigure(1, weight=0)
         self.frame = ctk.CTkFrame(
@@ -243,6 +288,7 @@ class CustomApp(ctk.CTk):
             width=self.default_width,
         )
         self.button_off.grid(pady=490, padx=0, row=4, column=7)
+
     def optionmenu_callback(self, choice):
         if choice == "Радость":
             self.send_command('2')
