@@ -1,0 +1,19 @@
+Arduino: 
+#include <uspeech.h>
+#include <Adafruit_NeoPixel.h>
+
+Python:
+  Main menu:
+import customtkinter as ctk
+import serial
+import time
+from tkinter import messagebox
+import random
+from tkinter import PhotoImage
+import json  # Импортируем модуль json
+import os
+  Login:
+import customtkinter as ctk
+from tkinter import messagebox
+import os
+import uuid
